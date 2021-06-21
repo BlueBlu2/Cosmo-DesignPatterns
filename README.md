@@ -1,6 +1,5 @@
 # Cosmo-DesignPatterns
 ## this repo is created specially to state different design patterns cases and solution.
-
 ## you can find for every problem at least 2 solutions and follow this conventions.
 
 - ### CosmoPatternName.BadEx 
