@@ -14,11 +14,15 @@ namespace CosmoStatePattern.BadEx.Logic
         public string Attendee { get; set; }
         public int TicketCount { get; set; }
         public int BookingID { get; set; }
+        private bool IsNew;
+        private bool IsPending;
+        private bool IsBooked;
 
         private CancellationTokenSource cancelToken;
        
         public Booking(MainWindow view)
         {
+            IsNew = true;
             View = view;
             BookingID = new Random().Next();
             ShowState("New");
@@ -27,24 +31,67 @@ namespace CosmoStatePattern.BadEx.Logic
 
         public void SubmitDetails(string attendee, int ticketCount)
         {
-           
+            if (IsNew)
+            {
+                IsPending = true;
+                IsNew = false;
+                Attendee = attendee;
+                TicketCount = ticketCount;
+                cancelToken = new CancellationTokenSource();
+                StaticFunctions.ProcessBooking(this, ProcessingComplete, cancelToken);
+
+                ShowState("Pending");
+                View.ShowStatusPage("Processing Booking");
+            }
         }
 
         public void Cancel()
         {
-           
+            if (IsNew == true)
+            {
+                ShowState("Closed");
+                View.ShowStatusPage("Canceled By user");
+                IsNew = false;
+            }
+            else if (IsPending)
+            {
+                cancelToken.Cancel();
+            }
+            else if (IsBooked)
+            {
+                ShowState("Closed");
+                View.ShowStatusPage("Booking canceled: Expect a refund");
+                IsBooked = false; 
+            }
+            else
+            {
+                View.ShowError("Closed Bookings Cannot Be Canceled");
+            }
         }
 
         public void DatePassed()
         {
-
+            if (IsNew == true)
+            {
+                ShowState("Closed");
+                View.ShowStatusPage("Booking Expired");
+                IsNew = false;
+            }
+            else if (IsBooked)
+            {
+                ShowState("Closed");
+                View.ShowStatusPage("Wh hope you enjoyed the event");
+                IsBooked = false;
+            }
         }
 
         public void ProcessingComplete(Booking booking, ProcessingResult result)
         {
+            IsPending = false;
             switch (result)
             {
                 case ProcessingResult.Sucess:
+                    IsBooked = true;
                     ShowState("Booked");
                     View.ShowStatusPage("Enjoy the Event");
                     break;
@@ -52,6 +99,7 @@ namespace CosmoStatePattern.BadEx.Logic
                     View.ShowProcessingError();
                     Attendee = string.Empty;
                     BookingID = new Random().Next();
+                    IsNew = true;
                     ShowState("New");
                     View.ShowEntryPage();
                     break;

@@ -24,7 +24,7 @@ namespace CosmoStatePattern.GoodEx.UI
         private EntryPage entryPage = new EntryPage();
         private StatusPage statusPage = new StatusPage();
 
-        private Booking booking;
+        private BookingContext booking;
 
         public MainWindow()
         {
@@ -34,7 +34,7 @@ namespace CosmoStatePattern.GoodEx.UI
 
         private void btnCreate_Click(object sender, RoutedEventArgs e)
         {
-            booking = new Booking(this);
+            booking = new BookingContext(this);
         }
 
         private void btnSubmit_Click(object sender, RoutedEventArgs e)
